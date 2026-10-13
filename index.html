@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>سیستەمی کاشێر</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f1effa;--card:#fff;--ink:#1d1a3d;--mut:#6f6c91;--line:#e3e0f2;--pri:#6a47f5;--onpri:#fff;--deep:#1e1b4b;--acc:#ffb020;--red:#e5484d;--ok:#12a26b;--tl:93%;--tc:34%;--sh:0 6px 20px rgba(40,24,120,.08);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#100f24;--card:#1a1838;--ink:#ecebfa;--mut:#9996c0;--line:#2d2a55;--pri:#8f74ff;--onpri:#0f0b2b;--deep:#0a0919;--tl:26%;--tc:82%;--sh:0 6px 20px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#100f24;--card:#1a1838;--ink:#ecebfa;--mut:#9996c0;--line:#2d2a55;--pri:#8f74ff;--onpri:#0f0b2b;--deep:#0a0919;--tl:26%;--tc:82%;--sh:0 6px 20px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 Vazirmatn,Tahoma,"Noto Naskh Arabic",sans-serif}
+button,input,select{font:inherit;color:inherit}select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+input{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.mut{color:var(--mut)}.hide{display:none!important}
+.rail{position:fixed;inset-block:0;inset-inline-start:0;width:88px;background:var(--deep);display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;z-index:20}
+.brand{font-size:30px;margin-bottom:14px}
+.rail button{width:100%;display:flex;flex-direction:column;align-items:center;gap:0;background:transparent;border:0;color:#b9b5e8;padding:10px 2px;border-radius:14px;font-size:12px;line-height:1.5}
+.rail button span{font-size:22px}.rail button.on{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
+main{margin-inline-start:88px;padding:16px;max-width:1240px}
+@media(max-width:820px){
+.rail{inset-block:auto 0;inset-inline:0;width:auto;flex-direction:row;justify-content:space-around;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+.brand{display:none}.rail button{width:auto;flex:1}main{margin:0;padding:12px 12px 96px}}
+.scan{position:relative;display:flex;gap:10px;align-items:center;background:var(--deep);border-radius:20px;padding:14px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
+.scan::before{content:"";position:absolute;inset-inline:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#ff4d5e,transparent);opacity:0}
+.scan:focus-within::before{opacity:1;animation:lz 2.2s ease-in-out infinite alternate}
+@keyframes lz{to{top:calc(100% - 2px)}}
+@media(prefers-reduced-motion:reduce){.scan:focus-within::before{animation:none;top:50%}}
+.scan input{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff;font-size:18px;padding:12px 14px;border-radius:14px;text-align:center;letter-spacing:1px}
+.scan input::placeholder{color:#a9a5dd;letter-spacing:0}
+.cam{background:var(--acc);color:#2a1d00;border:0;font-weight:800;padding:12px 16px;border-radius:14px;white-space:nowrap}
+.tdy{color:#cfcbff;font-size:12px;white-space:nowrap;line-height:1.3}.tdy b{display:block;color:#fff;font-size:16px}
+@media(max-width:560px){.tdy{display:none}}
+.sale{display:grid;grid-template-columns:1fr 390px;gap:16px;align-items:start}
+@media(max-width:900px){.sale{grid-template-columns:minmax(0,1fr)}}.sale>*,main,section{min-width:0}html,body{overflow-x:hidden}
+.cartcol{position:sticky;top:12px}@media(max-width:900px){.cartcol{position:static}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px}
+.chips button{white-space:nowrap;border-radius:20px;padding:6px 16px}
+.chips button.on,.seg button.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px}
+.item{text-align:start;display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;min-height:132px;transition:transform .12s}
+.item:active{transform:scale(.96)}.item:disabled{opacity:.45;cursor:not-allowed}
+.av{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:19px;background:hsl(var(--h) 80% var(--tl));color:hsl(var(--h) 60% var(--tc))}
+.item b{font-weight:600;line-height:1.35}.item small{color:var(--mut)}
+.item .pr{margin-top:auto;font-weight:800;color:var(--pri)}
+.low{color:var(--red)!important}
+.paper{position:relative;background:var(--card);border-radius:18px 18px 0 0;padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.paper::after{content:"";position:absolute;inset-inline:0;top:100%;height:6px;background:var(--card);-webkit-mask:conic-gradient(from -45deg at bottom,#000 90deg,#0000 0) 50%/12px 100%;mask:conic-gradient(from -45deg at bottom,#000 90deg,#0000 0) 50%/12px 100%}
+.ph{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px dashed var(--line);font-weight:800;font-size:17px}
+.ph button{font-weight:400;font-size:13px;padding:4px 10px}
+.line{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+.qty{display:flex;align-items:center;gap:8px}.qty button{width:30px;height:30px;padding:0;border-radius:50%;font-weight:800}
+.x{color:var(--red);border:0;background:none;padding:2px 6px}
+.empty{color:var(--mut);text-align:center;padding:28px 0}
+.sum{display:grid;gap:8px;margin-top:12px}
+.sum div{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sum input{width:110px;text-align:center;padding:5px}
+.total{font-size:24px;font-weight:800;color:var(--pri);border-top:2px dashed var(--line);padding-top:10px}
+.pay{width:100%;padding:16px;font-size:19px;font-weight:800;background:var(--acc);color:#2a1d00;border:0;border-radius:16px;box-shadow:0 6px 16px rgba(255,176,32,.4)}
+.pay:disabled{opacity:.45;box-shadow:none}
+.ghost{background:transparent}.pri{background:var(--pri);color:var(--onpri);border-color:var(--pri);font-weight:600}
+dialog{border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--ink);padding:20px;width:min(430px,calc(var(--vw,1vw)*94))}
+dialog::backdrop{background:rgba(10,8,40,.6)}
+.seg{display:flex;gap:6px;margin:10px 0}.seg button{flex:1}
+.row{display:flex;gap:8px;margin-top:14px}.row button{flex:1;padding:11px}
+.big{font-size:32px;font-weight:800;text-align:center;color:var(--pri)}
+.fs{display:grid;gap:8px}.fs label{display:grid;gap:3px;color:var(--mut);font-size:13px}
+.vw{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:4/3}
+.vw video{width:100%;height:100%;object-fit:cover}.vw i{position:absolute;inset:22% 10%;border:3px solid var(--acc);border-radius:14px}
+#rc{font-size:13px}#rc .l{display:flex;justify-content:space-between;gap:8px}#rc hr{border:0;border-top:1px dashed var(--mut)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--sh);color:var(--mut);font-size:13px}
+.stats b{display:block;font-size:22px;color:var(--pri)}
+h2{margin:0 0 12px;font-size:20px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.inl{display:flex;gap:6px;grid-column:span 2}.inl button{white-space:nowrap}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th{color:var(--mut);font-weight:600;font-size:13px}th,td{padding:9px 8px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+td input{width:90px;padding:5px 8px}
+.toast{position:fixed;inset-inline:0;bottom:calc(96px + env(safe-area-inset-bottom,0px));margin:auto;width:max-content;max-width:calc(var(--vw,1vw)*90);background:var(--deep);color:#fff;padding:11px 18px;border-radius:14px;display:none;z-index:99;box-shadow:var(--sh)}
+input,select{font-size:16px}button{touch-action:manipulation}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand .ic{width:34px;height:34px;fill:var(--acc);stroke:none}
+.cam{display:flex;align-items:center;gap:8px}.x{font-size:22px;line-height:1}
+dialog{max-height:calc(var(--vh,1vh)*90);overflow:auto}
+.cbar,.sbg{display:none}
+.card{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:start;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:8px}
+.tag{display:inline-block;background:var(--bg);color:var(--mut);border-radius:20px;padding:0 10px;font-size:12px}
+.btn{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-decoration:none;color:var(--pri)}
+.acts{display:flex;gap:6px;align-items:center}
+.bars{display:flex;align-items:flex-end;gap:2px;height:150px;direction:ltr}
+.bc{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px}
+.bc i{display:block;width:100%;background:var(--pri);border-radius:4px 4px 0 0;opacity:.85}
+.bc span{font-size:9px;color:var(--mut);height:14px;flex:none}
+.tl{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+@media(max-width:900px){
+body{font-size:14px}h2{font-size:18px}
+.rail{height:calc(64px + env(safe-area-inset-bottom,0px));padding:6px 8px env(safe-area-inset-bottom,0px);align-items:stretch}
+.rail button{font-size:11px;gap:2px;justify-content:center}
+main{padding:10px 10px calc(150px + env(safe-area-inset-bottom,0px))}
+.scan{padding:10px;border-radius:16px;gap:8px;margin-bottom:10px}
+.scan input{padding:10px}.cam{padding:10px 12px}.cam .tx{display:none}
+.panel{padding:10px;border-radius:16px}
+.grid{grid-template-columns:repeat(2,1fr);gap:8px}
+.item{min-height:0;padding:10px;display:grid;grid-template-columns:36px 1fr;column-gap:8px;row-gap:0;align-items:center}
+.av{width:36px;height:36px;grid-row:span 3;font-size:16px}
+.item b{font-size:14px}.item .pr{margin-top:2px;font-size:13px}
+.cartcol{position:fixed;top:auto;inset-inline:0;bottom:0;z-index:30;max-height:calc(var(--vh,1vh)*82);overflow:auto;background:var(--bg);padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.3);transform:translateY(110%);visibility:hidden;transition:transform .25s,visibility .25s}
+.cartcol.open{transform:none;visibility:visible}
+.cartcol::before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--mut);opacity:.5;margin:0 auto 10px}
+.sbg{position:fixed;inset:0;background:rgba(10,8,40,.55);z-index:29}.sbg.open{display:block}
+.cbar{display:flex;justify-content:space-between;align-items:center;position:fixed;inset-inline:10px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:25;background:var(--pri);color:var(--onpri);border:0;border-radius:16px;padding:13px 18px;font-weight:700;font-size:15px;box-shadow:0 8px 22px rgba(60,30,200,.35)}
+.toast{bottom:calc(140px + env(safe-area-inset-bottom,0px))}
+.big{font-size:28px}
+}
+
+html{touch-action:pan-x pan-y}
+body.rot{position:fixed;top:0;left:0;right:auto;bottom:auto;margin:0;overflow:hidden;transform-origin:0 0}
+body.rot main{position:absolute;inset:0;overflow:auto}
+body.rot dialog[open]{position:absolute;inset:0;margin:auto;height:fit-content;z-index:100;box-shadow:0 0 0 9999px rgba(10,8,40,.6)}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1e1b4b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="کاشێر">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+</head>
+<body>
+<aside class="rail"><div class="brand"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="2" height="14"/><rect x="7" y="5" width="1" height="14"/><rect x="10" y="5" width="3" height="14"/><rect x="15" y="5" width="1" height="14"/><rect x="18" y="5" width="3" height="14"/></svg></div><div id="nav" style="display:contents">
+<button data-t="sale" class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg>فرۆشتن</button>
+<button data-t="prod"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>بەرهەم</button>
+<button data-t="supp"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/></svg>مەندوب</button>
+<button data-t="debt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14.5h2"/></svg>قەرز</button>
+<button data-t="hist"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-8M12 20V4M19 20v-5"/></svg>ڕاپۆرت</button></div><button id="rset" aria-label="ڕێکخستنی پسوڵە"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>ڕێکخستن</button></aside>
+<main>
+<div id="bkw" class="hide" style="gap:10px;align-items:center;justify-content:space-between;background:#fff3cd;color:#5c4400;border-radius:14px;padding:10px 14px;margin-bottom:10px;font-size:14px"><span id="bkm"></span><button id="bkn" style="white-space:nowrap">باکئەپ ئێستا</button></div>
+<section id="sale">
+ <div class="scan">
+  <input id="bc" inputmode="numeric" autocomplete="off" placeholder="بارکۆد سکان بکە یان بینووسە، پاشان Enter" autofocus>
+  <button class="cam" id="camb" aria-label="کامێرا"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg><span class="tx">کامێرا</span></button>
+  <div class="tdy">فرۆشی ئەمڕۆ<b id="today"></b></div>
+ </div>
+ <div class="sale">
+  <div class="panel">
+   <input id="q" type="search" placeholder="گەڕان بە ناوی بەرهەم">
+   <div class="chips" id="cats"></div>
+   <div class="grid" id="grid"></div>
+  </div>
+  <div class="cartcol">
+   <div class="paper">
+    <div class="ph"><span>سەبەتە</span><button class="ghost" id="clr">پاککردنەوە</button></div>
+    <div id="cart"></div>
+    <div class="sum">
+     <div><span>کۆ</span><b id="sub"></b></div>
+     <div><span>داشکاندن (د.ع)</span><input id="disc" type="number" min="0" value="0"></div>
+     <div><span>باج %</span><input id="tax" type="number" min="0" max="100" value="0"></div>
+     <div class="total"><span>کۆی گشتی</span><span id="tot"></span></div>
+    </div>
+   </div>
+   <button class="pay" id="payb" disabled>پارەدان</button>
+  </div>
+ </div>
+</section>
+
+<section id="prod" class="hide">
+ <h2>بەرهەمەکان</h2>
+ <div class="panel">
+  <div class="form">
+   <div class="inl"><input id="pc" inputmode="numeric" placeholder="بارکۆد (سکان بکە)"><button id="pcam" aria-label="سکانی کامێرا"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button><button id="pgen">کۆد دروست بکە</button></div>
+   <input id="pn" placeholder="ناوی بەرهەم"><input id="pg" placeholder="بەش (نموونە: خواردن)">
+   <input id="pp" type="number" min="0" placeholder="نرخ"><input id="ps" type="number" min="0" placeholder="بڕی کۆگا">
+   <button class="pri" id="padd">زیادکردنی بەرهەم</button>
+  </div>
+  <div class="tw"><table><thead><tr><th>ناو</th><th>بارکۆد</th><th>بەش</th><th>نرخ</th><th>کۆگا</th><th></th></tr></thead><tbody id="ptb"></tbody></table></div>
+ </div>
+</section>
+
+<section id="supp" class="hide">
+ <h2>مەندوبەکان</h2>
+ <div class="panel">
+  <div class="form"><input id="mn" placeholder="ناوی مەندوب"><input id="mp" inputmode="tel" placeholder="ژمارەی پەیوەندی"><input id="mt" placeholder="جۆری بەرهەم (نموونە: شیرەمەنی)"><button class="pri" id="madd">زیادکردنی مەندوب</button></div>
+  <div id="mlist"></div>
+ </div>
+</section>
+
+<section id="debt" class="hide">
+ <h2>قەرزەکان</h2>
+ <div class="stats"><div>کۆی قەرز<b id="dtot"></b></div><div>ژمارەی قەرزارەکان<b id="dcnt"></b></div></div>
+ <div class="panel">
+  <div class="form"><input id="dn2" placeholder="ناوی قەرزار"><input id="dp2" inputmode="tel" placeholder="ژمارەی مۆبایل"><input id="da2" type="number" min="0" placeholder="بڕی قەرز"><input id="dno2" placeholder="تێبینی (دڵخواز)"><button class="pri" id="dadd">تۆمارکردنی قەرز</button></div>
+  <div id="dlist"></div>
+ </div>
+</section>
+
+<section id="hist" class="hide">
+ <h2>ڕاپۆرت و مێژوو</h2><div class="chips" id="per"></div><div class="panel" id="chart" style="margin-bottom:12px"></div>
+ <div class="stats" id="stats"></div>
+ <div class="panel tw"><table><thead><tr><th>ژمارە</th><th>کات</th><th>شێواز</th><th>کۆ</th><th></th></tr></thead><tbody id="htb"></tbody></table></div>
+</section>
+</main>
+
+<dialog id="pd"></dialog><dialog id="qd"></dialog><dialog id="dd"></dialog>
+<dialog id="cd"><div class="vw"><video id="vid" playsinline muted></video><i></i></div><input type="range" id="zm" style="display:none;width:100%;margin:10px 0 0" aria-label="زووم"><p class="mut" style="text-align:center;margin:10px 0 0">بارکۆدەکە بخەرە ناو چوارچێوەکە</p><div class="row"><button onclick="camStop()">داخستن</button></div></dialog>
+<dialog id="sd"><h3 style="margin:0 0 12px">ڕێکخستن و دیزاینی پسوڵە</h3><div class="fs"><label>ناوی مارکێت<input id="sn" autocomplete="off"></label><label>ژمارەی پەیوەندی<input id="sp" inputmode="tel" dir="ltr" autocomplete="off"></label><label>ناونیشان<input id="sa" autocomplete="off"></label><label>دێڕی بەخێرهاتن<input id="sw" autocomplete="off"></label><label>دۆخی شاشە<select id="so"><option value="p">ستوونی (پۆرترەیت)</option><option value="l">لاکێشەیی (لاندسکەیپ)</option></select></label></div><div class="fs" style="margin-top:12px"><b>باکئەپ</b><div class="row"><button id="bkb">هەڵگرتنی کۆپی</button><button id="bkr">گەڕاندنەوە</button></div><input type="file" id="bkf" accept=".json,application/json" class="hide"><small class="mut" id="bkt"></small></div><div class="fs" style="margin-top:12px"><small class="mut" id="mkl"></small><button id="mko">دەرچوون (+ باکئەپ)</button></div><div class="row"><button class="pri" id="ssv">پاشەکەوت</button><button id="sx">داخستن</button></div></dialog>
+<dialog id="rd"><div id="rc"></div><div class="row"><button class="pri" onclick="printRc()">چاپکردن</button><button onclick="$('#sd').showModal()">دیزاین</button><button onclick="rd.close()">داخستن</button></div></dialog>
+<div class="sbg" id="sbg"></div>
+<button class="cbar" id="cbar"><span>سەبەتە <b id="cn">0</b></span><b id="ct"></b></button>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+const H=["153f7ad2439137373859fb1483860e49eb9a44aa7936a5dd6bd52c1255100e5c", "c5a428f866b8618a686388731139bcd61acca1009c206b75e6ce6fb70c939338", "ba657a0e6b41e719834c8b2e765a168a1f993374d43339b31dee04ee542305fb", "85b2b9be8d55defe1e03c5f7c6ae3a80ff42d4396d9f078d12cda2dc76c4ec68", "9fcb07b386980930c2f215d007ba4d70a18233383dcb48a3376fa3b0ea400f83", "3fbf797a9b89211e71c89429efe5a331b5a7ffb98dfa17fa025594a71cd1f232", "319ce234212e449cff90ad78cdab205581a91ca406ef81c3af9eaec9549ab6fa", "b2a4a2b62ddb88ebabb0ae079a4d5bf1758c5571264fe53cea16de9b4fd5f82d", "eca38dd7718edb1e26bbdd1f12c46ce164597cf2d38774e4dcb5bf0bdb9ba28f", "04c1e9887d79929e2f9883628945ff8a5365a5645906c06c3fd68547b89682b4", "55a95cc30af9a4afaa617bf1267bb05002bbab0a5d887a5d6349b32c22dfcffa", "01d93f2118b2d2eae43db4c58bf80e94723702f02a027e88afa6a6a0f0491f9e", "dac7dac0a72f40626fa4cbc3f5a4fdc76920d5894fde0ea13993bdb1d2805e8a", "17852d2c81dc058995f9dba8f186886d4bb59f2e05ca44a52c6c7d3e7a162524", "ffde8a3467ce9fa93824fcb49e4eff05056123865f271be279e2b75cb57e01d4", "06ca4d2809ebed21f8af0676752df4bc5054488bdd58fe6ac4a7adec8df74ff7", "1c570332192157e5deafe98cd3256f76e5619693cec077c460b494f5cc97549f", "c85885fc26189160f083cc43770667742bef5dc8260bf1ddabd790d568084ff5", "e410c895153acf3e148e38fc6406d1793634ab34221736efe0031b1bdc6b5616", "0ce18077750cbbffeaa6539420f9fb4febd8d32fef55bbc6dcaac0cd2e1539fe", "0dd5d9ec5f059c440bd253eda858c276287362d17862b4c3f1766448125b2c36", "a7da93801ff10ad856d8f0f9de4c53007cca3cd6f283a8fbde0b1803dde54cf4", "b026f483006c89bf5fe461c5e4004cb7520cb0288c82ca89ee7500e704470f51", "b3cb45768d1514e9e5a30c8c87884b80a095a55000f4b66e806469db05fe17ab", "d6538d7f1df453dbc2702b74a948d5fb5dd8982bf4db000b08d56470a0efaa2f", "b3f8b8b656b9e369ea12250e337cfd4917241290c4fb4635cce108e5dba76543", "349b0d7ece10cb647a345c07286f214d7a5421cfc3b119fe7559f743069af9b6", "cebb12d754145096385a29443461d944fc643f65325551c8e0ee0aeebf02d4f3", "5edc6c9aadb5b425eaa0c95ebac4e9d7ee2bd7d04ebaabb83ee8a44cc2003dc0", "4269629d3db13d943deb793cacafa061825c931eaa8c2b1f956a22c057ab3f6a", "98881d1f235db70f171468a71e8861e0b9e6a98561c62985b6f9cb7b8ce901a6", "00d62360e765fd17f1ecdf564730d2b036ef7fc655637ea37ee00709f9d45ee9", "4e637d568cf46f2b084e7ab37e78c05e73e8d50cf1a94aa46d50366b2268330b", "b13644e11522c0fbd254205b97c36fe060787948cd4fc9853a4061a2fd19a061", "19f35bb610f1ac257f4fb1fcaf0307d90fdec8135a2c203600e1daa279731994", "d073a46d06fef4d8b99850e8df48a33ab2678b7d48c258d7a6db7f0087056818", "0883d56487a0c05741fa62540b10ec26001bd45711f763db1139f69c9f37e21b", "16c0349d98effde1a2be32fb1c284fd10c6d9a24895f0ca6a0ac4c033bd64dca", "d4de7e77890981dbb2f24e4850f9ae6633b4c1b537b4c4184826c1d97ae9d066", "bfe2293fc9c5921229314d281a7342f769c7ec4f4212ee427eb77a7ab3e30b39", "da7773176cffab3617dddf01cfde8d9037f1f8d1ea3ed8688c0e73d26952f72a", "f128b272aab72a3a2bd56bc287f37d5dc42b59d7c346f52e12e567167b9c9578", "007d452cec197cd92286c19b2162bd18fe7932bb1d51c9f567e915893a0fa40e", "1793d5659e8b7a14e1cb8c21496b759d81a8224ee3e67dc17e94a336c3a15d41", "dee184d04d622f3c75fa6cb248d603595aa6824d837e811592f5eaa6b68f1192", "526c1a229d463b6318efda29fe1e9493f89d632efdf1a2fa1592e68aebbfa613", "88345fe9b846a24b64929cf540322dc96986cab46a27d8bf73d234865aef59a7", "6688eb083870fd2486fc372eeab423f1c7071cac0f9338b45fa19a8306a22720", "62c57ef5a707f265162d02815aeb10fa7a9549ace987e63f8ca6605e88d62454", "660e2ddc3c072158e37e7f47fb5dd71b1e2bc38e0b23f1843ffade3d1f026f3e", "7d6df12085cd4f24358f7eea4ba9d2bf878a9012d1fe917654dc3c8299c879c8", "6404ab099acf9c63570626d28159477c0018ce49c9564f803bf2f8320a0877e2", "c198c20efe84ab403e4e8e29fcaa0bffe6a6ad41a6681515fb9776eda11bb5b0", "55ebfc7fba2a8d931b7a076e202fc3336ae7a271ef6f99d7b49f7d090ae6c2b0", "c174e7d2ab48e7ca99ee412e2c35759f15cfd7405e4cc781205e5e88666fcf5c", "36ffc7bb7241d394128b87e2810fb361ec306f7fd63b5eda94139315668d751e", "1336244213775b704468de2c94b2e726dea75ed54d2c0272126c6f640b6ec752", "961fe8e8ad504545ffe72ec93a7e344e697fd442d5cc8ef609266b321742e649", "eab5a1d125194365e193438d21764765fc630ccb9f60fca495a231cabe8011fa", "11f89d4ddf976218da34ee5e6a85973bf414293a1b75b3b24f5ac9a25f68d21e", "bcb82970bfd3958bc745b36db3b2dc5aa49b4b37dbaa3044fa3329748568d59a", "4077377bf3b89894e6ab6d09e35d582272b3f32c3e53fd27ee1ecb2b4daed54b", "63632c0ad81edd342c67b2095317ebf747a04d49284fbef0c9c976705c5a3b2a", "0300699aa9c7e6150cb0c6684164452e959829c843628c84520effb305c9db6b", "bdd67a6fb02d6a7d063304ea393594317ddfb745ca2096b33420079c24fe6494", "232d8cdd7c95feb13e3e531da93a9b759867a1b95148bbb2b9d890c4d7564afb", "556fc22cc7246fd7989cc1c70ea59a21664df0fb1e4430ae56dc89cad9899680", "47640ecad80f57cae5324d08ec54b2714e9f74eccd9b4d635d5c298891c96e3a", "1d1bb33afa909a6ba5cc6462a7ae10db67bef9da3ef9a960e80af38b45b8a73d", "b0dd6dee47c91a4144bc578161741fa2403a117a0ec846780983f7f0805354e4", "2a40ac2dbf20f5ea0ad918855d0a287a16f35df9abd1a64b642c828da30805e3", "68c1ab1d3eaf3bb9c949d5475c9eed9213ce356154d1be6f456b60507da90cde", "932a6806bf0c73dd9af313f6d5b9e2d35b4a8b3099973cc8e7839985d274fab9", "c5c7428b58a403817f7e50ef94a9f7322aecd085121330eae25283ee4c3f9479", "eab2feb2a71d1b09960ca3175f4652b6b2ce0b21d964da1b2138b37012c828e4", "3d5224cffe391189646aaa32b720ad4736d344f436fe9ed5a3e11b0e71ca10af", "72815c357f521f3e9e3e2d870ddc41d8b1cb2b586aac6769eba9e66e0d13933f", "fbf085a2c90a33db5dcbd150234cc4ea22ae598e420a9d282da32858e04abbaf", "e19a2301510e0c31359ea4c934a4590e676edd115a497f968d273f538d28688f", "c6c6bc70c742ab1065eb00dd82e1597155f1c3b8a1bb987270c5350327196b8b", "88fbb932b256a3d9e2fd577458507b2e6d9d0bd7f3d2987eaa97636ff071f087", "35161b1bb13a5934047932269963b1cf0e59357fa15753b5918217cae226bc65", "243e1fb3c14239b6bfa85398384b0802ca89d853eec3ceeb797f0b3ea75b88f1", "e4349176f3d54e7cd09f71b3a063b7cb42d92627ecca94134d99da1e8106134f", "6babec4ccfd7bf84d51fcf844a87e899ab8b9bd1c8c983a28b4abe7b0b3a96f5", "e83a24a992cd94372676a5b77ac69fc7965d37750b6b21f83856a3beee7981ca", "0725c7e756245d57fc80e5d41e4e76f2ed30737f8828204b99cca0f19f347d59", "f2324d81824defa3b40436097d99e48ff9d0d9ae4b09e68936d4e13b1dd7b0a0", "5a9b69503e655ca05dae08bd37a69f093f460e73fff52a1370611c353be4c02f", "336840863cca682919127d757523e85a867a037e044ca700bee028b415a22011", "55a0c48e6e53c21d7d7d04ed17b53444097257ffeb5a805adeff97602a39d4b1", "427b11754741067b1d27a315a3e8d1f22641a1ab80a2ef42140d08176605bc91", "b41a3ac74dd7a6782d5548085edb6972a2e0124886a61de24a18d75395a46423", "e461291700c098b9f9153dacaa0c5948cb742de69b689b2c017b9d9cd64c7e09", "bb79656e8edddeb1ed039c06d8c4e302c605df9a827a7be9927206088196303a", "73cc21e32189d3e102f655b09dd44b75afe38674403279361f56a9c31a7c01c7", "40a36e75af476bc4f1e1bda556abf0a2a02cf7c26705973bfde4ea7ceb3eab27", "798e613cf6ce29188ca7b60f201aec47459ab05e724680f597181633b97a2198", "99f33e8864d388c82b30774793f852de1c794fb1311d89c91a5b71e78ac8aa20", "68d32b9958225f5a4366206814d27622cc957758cb058c07202294bc26120107"],SALT='cashier-v1:';
+function sha(m){const e=new TextEncoder().encode(m),l=e.length,n=((l+9+63)>>6)<<4,w=new Uint32Array(n);
+ for(let i=0;i<l;i++)w[i>>2]|=e[i]<<(24-8*(i&3));w[l>>2]|=0x80<<(24-8*(l&3));w[n-1]=l*8;
+ const K=[],h=[];let c=0;for(let q=2;c<64;q++){let p=1;for(let d=2;d*d<=q;d++)if(q%d==0){p=0;break}if(p){if(c<8)h[c]=(Math.sqrt(q)%1*4294967296)|0;K[c++]=(Math.cbrt(q)%1*4294967296)|0}}
+ const R=(x,k)=>(x>>>k)|(x<<(32-k)),W=new Uint32Array(64);
+ for(let o=0;o<n;o+=16){for(let i=0;i<16;i++)W[i]=w[o+i];
+  for(let i=16;i<64;i++){const a=W[i-15],b=W[i-2];W[i]=(W[i-16]+(R(a,7)^R(a,18)^(a>>>3))+W[i-7]+(R(b,17)^R(b,19)^(b>>>10)))|0}
+  let [a,b,cc,d,e,f,g,hh]=h;
+  for(let i=0;i<64;i++){const t1=(hh+(R(e,6)^R(e,11)^R(e,25))+((e&f)^(~e&g))+K[i]+W[i])|0,t2=((R(a,2)^R(a,13)^R(a,22))+((a&b)^(a&cc)^(b&cc)))|0;hh=g;g=f;f=e;e=(d+t1)|0;d=cc;cc=b;b=a;a=(t1+t2)|0}
+  h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+cc)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0}
+ return h.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
+const gi=Storage.prototype.getItem,si=Storage.prototype.setItem,ri=Storage.prototype.removeItem;
+let sess=null;try{const v=gi.call(localStorage,'pos_sess');if(v!==null&&/^\d+$/.test(v)&&+v<H.length)sess=+v}catch(e){}
+const NS=sess!==null?'m'+sess+'_':'guest_';
+const mp=k=>(typeof k==='string'&&k.startsWith('pos_')&&k!=='pos_sess'&&k!=='pos_mig')?NS+k:k;
+Storage.prototype.getItem=function(k){return gi.call(this,mp(k))};
+Storage.prototype.setItem=function(k,v){return si.call(this,mp(k),v)};
+Storage.prototype.removeItem=function(k){return ri.call(this,mp(k))};
+const KEYS=['pos_p','pos_s','pos_m','pos_d','pos_st','pos_or','pos_bk'];
+const MK=window.MK={idx:sess,ok:sess!==null,
+ login(code){const c=String(code).toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==12)return false;
+  const i=H.indexOf(sha(SALT+c));if(i<0)return false;
+  try{if(gi.call(localStorage,'pos_mig')===null){if(gi.call(localStorage,'m'+i+'_pos_p')===null&&gi.call(localStorage,'pos_p')!==null)
+    KEYS.forEach(k=>{const v=gi.call(localStorage,k);if(v!==null)si.call(localStorage,'m'+i+'_'+k,v)});si.call(localStorage,'pos_mig','1')}
+   si.call(localStorage,'pos_sess',String(i))}catch(e){return false}
+  return true},
+ logout(){try{ri.call(localStorage,'pos_sess')}catch(e){}location.reload()}};
+if(!MK.ok){
+ const st=document.createElement('style');
+ st.textContent='#lg{position:fixed;inset:0;z-index:99999;background:#1e1b4b;display:flex;align-items:center;justify-content:center;padding:20px}#lg .c{background:#fff;color:#1e1b4b;border-radius:22px;padding:24px;width:min(380px,100%);text-align:center}#lg h2{margin:0 0 6px}#lg p{margin:0 0 14px;color:#6b6894;font-size:14px}#lg input{width:100%;padding:14px;border-radius:14px;border:1px solid #cfcbee;font-size:20px;text-align:center;letter-spacing:2px;direction:ltr;text-transform:uppercase;background:#fff;color:#1e1b4b}#lg button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#6a47f5;color:#fff;font-size:16px;font-weight:700}#lg .e{color:#d62f45;min-height:20px;margin-top:8px;font-size:14px}';
+ document.head.appendChild(st);
+ const d=document.createElement('div');d.id='lg';
+ d.innerHTML='<div class="c"><h2>سیستەمی کاشێر</h2><p>کۆدی مارکێتەکەت بنووسە</p><input id="lgc" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX"><div class="e" id="lge"></div><button id="lgb">چوونەژوورەوە</button></div>';
+ document.body.appendChild(d);
+ const go=()=>{if(MK.login(document.getElementById('lgc').value))location.reload();else document.getElementById('lge').textContent='کۆدەکە هەڵەیە'};
+ document.getElementById('lgb').onclick=go;
+ document.getElementById('lgc').onkeydown=e=>{if(e.key==='Enter')go()};
+ setTimeout(()=>document.getElementById('lgc').focus(),50)}
+})();
+</script>
+<script>
+const $=s=>document.querySelector(s),fmt=n=>Math.round(n).toLocaleString('en-US')+' د.ع';
+const e=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hue=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h};
+function ld(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(x){return d}}
+function sv(){try{localStorage.setItem('pos_p',JSON.stringify(P));localStorage.setItem('pos_s',JSON.stringify(S));localStorage.setItem('pos_m',JSON.stringify(M));localStorage.setItem('pos_d',JSON.stringify(D))}catch(x){}}
+let P=ld('pos_p',[
+{id:1,name:'نان',code:'6001',cat:'خواردن',price:500,stock:50},
+{id:2,name:'برنج',code:'6002',cat:'خواردن',price:2500,stock:30},
+{id:3,name:'ڕۆنی چێشت',code:'6003',cat:'خواردن',price:4000,stock:20},
+{id:4,name:'ئاو',code:'7001',cat:'خواردنەوە',price:250,stock:100},
+{id:5,name:'پێپسی',code:'7002',cat:'خواردنەوە',price:750,stock:60},
+{id:6,name:'چا',code:'7003',cat:'خواردنەوە',price:3000,stock:25},
+{id:7,name:'شیر',code:'8001',cat:'شیرەمەنی',price:1250,stock:40},
+{id:8,name:'ماست',code:'8002',cat:'شیرەمەنی',price:1000,stock:35},
+{id:9,name:'سابوون',code:'9001',cat:'پاککەرەوە',price:1500,stock:4}]);
+let S=ld('pos_s',[]),cart=[],cat='all',meth='cash';
+let M=ld('pos_m',[]),D=ld('pos_d',[]);
+
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2200)}
+function beep(ok=true){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=ok?1200:300;g.gain.value=.08;o.connect(g);g.connect(a.destination);o.start();setTimeout(()=>{o.stop();a.close()},ok?90:220)}catch(x){}}
+function show(t){['sale','prod','supp','debt','hist'].forEach(i=>$('#'+i).classList.toggle('hide',i!==t));
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+ $('#cbar').classList.toggle('hide',t!=='sale');sheet(false);
+ if(t==='prod')rProd();if(t==='hist')rHist();if(t==='sale')rSale();if(t==='supp')rSupp();if(t==='debt')rDebt()}
+$('#nav').onclick=ev=>{const b=ev.target.closest('button');if(b)show(b.dataset.t)};
+
+function calc(){const sub=cart.reduce((a,c)=>a+c.p.price*c.q,0);
+ const disc=Math.min(Math.max(+$('#disc').value||0,0),sub);
+ const tax=Math.round((sub-disc)*(+$('#tax').value||0)/100);
+ return{sub,disc,tax,total:sub-disc+tax}}
+
+function rSale(){
+ const cats=['all',...new Set(P.map(p=>p.cat).filter(Boolean))];
+ $('#cats').innerHTML=cats.map(c=>`<button class="${c===cat?'on':''}" data-c="${e(c)}">${c==='all'?'هەموو':e(c)}</button>`).join('');
+ const q=$('#q').value.trim().toLowerCase();
+ const list=P.filter(p=>(cat==='all'||p.cat===cat)&&(!q||p.name.toLowerCase().includes(q)));
+ $('#grid').innerHTML=list.map(p=>`<button class="item" data-id="${p.id}" ${p.stock<=0?'disabled':''}><span class="av" style="--h:${hue(p.cat)}">${e(p.name[0]||'?')}</span><b>${e(p.name)}</b><small class="${p.stock<=5?'low':''}">${p.stock<=0?'تەواو بووە':'کۆگا: '+p.stock}</small><span class="pr">${fmt(p.price)}</span></button>`).join('')||'<div class="empty">هیچ بەرهەمێک نەدۆزرایەوە</div>';
+ const d=new Date().toDateString();$('#today').textContent=fmt(S.filter(s=>new Date(s.time).toDateString()===d).reduce((a,s)=>a+s.total,0));
+ rCart()}
+function rCart(){
+ $('#cart').innerHTML=cart.length?cart.map(c=>`<div class="line"><div><b>${e(c.p.name)}</b><br><small class="mut">${fmt(c.p.price)}</small></div>
+ <div class="qty"><button data-a="m" data-id="${c.p.id}">−</button><b>${c.q}</b><button data-a="p" data-id="${c.p.id}">+</button></div>
+ <div><b>${fmt(c.p.price*c.q)}</b> <button class="x" data-a="d" data-id="${c.p.id}" aria-label="لابردن">×</button></div></div>`).join(''):'<div class="empty">سەبەتە بەتاڵە.<br>بارکۆد سکان بکە یان بەرهەمێک هەڵبژێرە.</div>';
+ const t=calc();$('#sub').textContent=fmt(t.sub);$('#tot').textContent=fmt(t.total);$('#payb').disabled=!cart.length;$('#cn').textContent=cart.reduce((a,c)=>a+c.q,0);$('#ct').textContent=fmt(t.total)}
+function add(id){const p=P.find(x=>x.id==id);if(!p)return false;const c=cart.find(x=>x.p.id==id);
+ if((c?c.q:0)+1>p.stock){toast('کۆگا بەشی ناکات');return false}
+ c?c.q++:cart.push({p,q:1});rCart();return true}
+
+/* ---- بارکۆد ---- */
+function scan(code){code=String(code).trim();if(!code)return;
+ if($('#sale').classList.contains('hide'))show('sale');
+ const p=P.find(x=>String(x.code)===code);
+ if(p){if(p.stock<=0){beep(false);return toast('«'+p.name+'» لە کۆگا نەماوە')}
+  if(add(p.id)){beep();toast(p.name+' — '+fmt(p.price))}}
+ else{beep(false);quickAdd(code)}}
+$('#bc').onkeydown=ev=>{if(ev.key==='Enter'){scan(ev.target.value);ev.target.value=''}};
+let buf='',bt=0;
+document.addEventListener('keydown',ev=>{ /* سکانەری USB کاتێک هیچ خانەیەک چالاک نییە */
+ if(/^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName)||document.querySelector('dialog[open]'))return;
+ const n=Date.now();if(n-bt>80)buf='';bt=n;
+ if(ev.key==='Enter'){if(buf.length>=4)scan(buf);buf='';return}
+ if(ev.key.length===1)buf+=ev.key});
+document.addEventListener('click',ev=>{if(matchMedia('(pointer:fine)').matches&&!$('#sale').classList.contains('hide')&&!document.querySelector('dialog[open]')&&!ev.target.closest('input'))$('#bc').focus()});
+
+function quickAdd(code){camStop();const d=$('#qd');
+ d.innerHTML=`<h3 style="margin:0 0 4px">بەرهەمی نوێ</h3><p class="mut" style="margin:0 0 10px">ئەم بارکۆدە تۆمار نەکراوە. زانیارییەکان بنووسە.</p>
+ <div class="fs"><label>بارکۆد<input id="qc" value="${e(code)}" readonly></label><label>ناو<input id="qn"></label>
+ <label>نرخ<input id="qp" type="number" min="0"></label><label>بڕی کۆگا<input id="qs" type="number" min="0" value="1"></label>
+ <label>بەش<input id="qg" list="cl" placeholder="گشتی"></label></div>
+ <datalist id="cl">${[...new Set(P.map(p=>p.cat))].map(c=>`<option value="${e(c)}">`).join('')}</datalist>
+ <div class="row"><button id="qx">پاشگەزبوونەوە</button><button class="pri" id="qk">پاشەکەوت و زیادکردن</button></div>`;
+ d.showModal();$('#qn').focus();$('#qx').onclick=()=>d.close();
+ $('#qk').onclick=()=>{const n=$('#qn').value.trim(),pr=$('#qp').value;
+  if(!n||pr==='')return toast('ناو و نرخ پێویستن');
+  const p={id:Date.now(),name:n,code,cat:$('#qg').value.trim()||'گشتی',price:+pr,stock:Math.max(+$('#qs').value||0,1)};
+  P.push(p);sv();d.close();rSale();add(p.id);beep();toast('بەرهەم پاشەکەوت کرا')}}
+
+let stream=null,tmr,zr,camMode='sale',lastC='',lastT=0;
+function loadZ(){return window.ZXing?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function getStream(){
+ const base={facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30}};
+ let st;try{st=await navigator.mediaDevices.getUserMedia({video:{...base,advanced:[{focusMode:'continuous'}]}})}
+ catch(e){st=await navigator.mediaDevices.getUserMedia({video:base})}
+ try{const tr=st.getVideoTracks()[0],cp=tr.getCapabilities?tr.getCapabilities():{};
+  if(cp.focusMode&&cp.focusMode.includes('continuous'))await tr.applyConstraints({advanced:[{focusMode:'continuous'}]});
+  const z=$('#zm');if(z){if(cp.zoom){z.min=cp.zoom.min;z.max=cp.zoom.max;z.step=cp.zoom.step||0.1;z.value=cp.zoom.min;z.style.display='block';
+   z.oninput=()=>tr.applyConstraints({advanced:[{zoom:+z.value}]}).catch(()=>{})}else z.style.display='none'}
+ }catch(e){}
+ return st}
+async function openCam(mode){camMode=mode;$('#cd').showModal();
+ try{stream=await getStream();const v=$('#vid');v.srcObject=stream;await v.play();
+  let det=null;if('BarcodeDetector' in window){try{det=new BarcodeDetector()}catch(e){}}
+  let zx=null;try{await loadZ();const h=new Map();h.set(ZXing.DecodeHintType.TRY_HARDER,true);zx=new ZXing.MultiFormatReader();zx.setHints(h)}catch(e){}
+  if(!det&&!zx)throw 0;
+  const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+  const tick=async()=>{if(!stream)return;
+   try{if(v.videoWidth){const w=Math.min(v.videoWidth,1280),k=w/v.videoWidth;cv.width=w;cv.height=Math.round(v.videoHeight*k);cx.drawImage(v,0,0,cv.width,cv.height);
+    let code='';
+    if(det){try{const r=await det.detect(cv);if(r[0])code=r[0].rawValue}catch(e){}}
+    if(!code&&zx){try{const bm=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv)));code=zx.decode(bm).getText()}catch(e){}}
+    if(code)onCode(code)}}catch(e){}
+   if(stream)tmr=setTimeout(tick,150)};tick()}
+ catch(x){camStop();toast('کامێرا کار ناکات. ڕێگەپێدان بدە یان سکانەری USB بەکاربهێنە')}}
+function camStop(){clearTimeout(tmr);if(stream&&stream.getTracks)stream.getTracks().forEach(t=>t.stop());stream=null;
+ if(zr){try{zr.reset()}catch(x){}zr=null}const d=$('#cd');if(d.open)d.close()}
+function onCode(c){const n=Date.now();if(c===lastC&&n-lastT<2000){lastT=n;return}lastC=c;lastT=n;
+ if(navigator.vibrate)navigator.vibrate(60);
+ if(camMode==='fill'){camStop();$('#pc').value=c;beep();chkCode()}else scan(c)}
+$('#camb').onclick=()=>openCam('sale');$('#pcam').onclick=()=>openCam('fill');
+$('#cd').addEventListener('close',camStop);
+
+/* ---- سەبەتە ---- */
+$('#cats').onclick=ev=>{const c=ev.target.dataset.c;if(c){cat=c;rSale()}};
+$('#grid').onclick=ev=>{const b=ev.target.closest('.item');if(b)add(b.dataset.id)};
+$('#q').oninput=rSale;
+$('#q').onkeydown=ev=>{if(ev.key==='Enter'){const q=ev.target.value.trim().toLowerCase();const p=P.find(x=>x.name.toLowerCase().includes(q)&&x.stock>0);if(p){add(p.id);ev.target.value='';rSale()}else toast('بەرهەم نەدۆزرایەوە')}};
+$('#cart').onclick=ev=>{const b=ev.target.closest('[data-a]');if(!b)return;const i=cart.findIndex(c=>c.p.id==b.dataset.id),c=cart[i];
+ if(b.dataset.a==='p')add(c.p.id);else if(b.dataset.a==='m'){c.q--;if(c.q<=0)cart.splice(i,1);rCart()}else{cart.splice(i,1);rCart()}};
+$('#clr').onclick=()=>{cart=[];rCart()};
+function sheet(o){$('.cartcol').classList.toggle('open',o);$('#sbg').classList.toggle('open',o)}
+$('#cbar').onclick=()=>sheet(true);$('#sbg').onclick=()=>sheet(false);
+$('#disc').oninput=$('#tax').oninput=rCart;
+
+$('#payb').onclick=()=>{const t=calc();meth='cash';
+ $('#pd').innerHTML=`<h3 style="margin:0">پارەدان</h3><div class="big">${fmt(t.total)}</div>
+ <div class="seg"><button class="on" data-m="cash">نەقد</button><button data-m="card">کارت</button><button data-m="debt">قەرز</button></div>
+ <div id="cash"><input id="rcv" type="number" min="0" placeholder="بڕی وەرگیراو">
+ <div class="seg" style="flex-wrap:wrap"><button data-r="${t.total}">دروست</button>${[5000,10000,25000,50000].map(v=>`<button data-r="${v}">${v.toLocaleString('en-US')}</button>`).join('')}</div>
+ <div id="chg" class="big" style="font-size:20px;color:var(--ok)"></div></div>
+ <div id="cust" class="fs hide"><label>ناوی قەرزار<input id="dn" list="dl" autocomplete="off"></label><label>ژمارەی مۆبایل<input id="dph" inputmode="tel"></label><datalist id="dl">${D.map(d=>`<option value="${e(d.name)}">`).join('')}</datalist></div>
+ <div class="row"><button onclick="pd.close()">پاشگەزبوونەوە</button><button class="pri" id="ok">تەواوکردنی فرۆشتن</button></div>`;
+ $('#pd').showModal();$('#rcv').focus();
+ $('#rcv').oninput=()=>{const r=+$('#rcv').value||0;$('#chg').textContent=meth==='debt'?'قەرز: '+fmt(Math.max(t.total-r,0)):r>=t.total?'باقی: '+fmt(r-t.total):'کەمە: '+fmt(t.total-r)};
+ $('#pd').onclick=ev=>{const b=ev.target.closest('button');if(!b)return;
+  if(b.dataset.m){meth=b.dataset.m;$('#pd').querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));$('#cash').classList.toggle('hide',meth==='card');$('#cust').classList.toggle('hide',meth!=='debt');$('#rcv').oninput()}
+  if(b.dataset.r){$('#rcv').value=b.dataset.r;$('#rcv').oninput()}};
+ $('#ok').onclick=()=>{const r=meth==='card'?t.total:(+$('#rcv').value||0);const cust=$('#dn').value.trim();
+  if(meth==='cash'&&r<t.total)return toast('بڕی وەرگیراو کەمە');if(meth==='debt'){if(!cust)return toast('ناوی قەرزار بنووسە');if(r>=t.total)return toast('بڕی وەرگیراو بەقەدەر کۆیە، نەقد هەڵبژێرە')}
+  const sale={no:(S[0]?S[0].no:1000)+1,time:Date.now(),items:cart.map(c=>({n:c.p.name,q:c.q,pr:c.p.price})),...t,meth,paid:r,cust:meth==='debt'?cust:'',owe:meth==='debt'?t.total-r:0};if(sale.owe)addDebt(cust,$('#dph').value.trim(),sale.owe,'پسوڵە #'+sale.no);
+  cart.forEach(c=>{c.p.stock-=c.q});S.unshift(sale);cart=[];$('#disc').value=0;sv();$('#pd').close();sheet(false);rSale();rcpt(sale)}};
+
+let ST=ld('pos_st',{}),curS=null;
+const RCSS='.rcp{width:100%;max-width:300px;margin:auto;font-size:13px;line-height:1.7}.rcp .rh{text-align:center}.rcp .rn{font-size:20px;display:block}.rcp .rw{text-align:center;font-weight:600;margin-top:4px}.rcp .rm{display:flex;justify-content:space-between;gap:8px;font-size:12px}.rcp .l{display:flex;justify-content:space-between;gap:8px}.rcp hr{border:0;border-top:1px dashed currentColor;margin:6px 0}.rcp .ft{text-align:center}';
+document.head.insertAdjacentHTML('beforeend','<style>'+RCSS+'</style>');
+function printRc(){const f=document.createElement('iframe');f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);
+ const d=f.contentDocument;d.open();d.write('<!doctype html><html dir="rtl" lang="ckb"><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:3mm}html,body{margin:0;background:#fff;color:#000;font-family:Tahoma,Arial,sans-serif}body{width:72mm}'+RCSS+'.rcp{max-width:none}</style></head><body>'+$('#rc').innerHTML+'</body></html>');d.close();
+ setTimeout(()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(x){try{window.print()}catch(y){toast('چاپکردن لێرە پشتگیری ناکرێت')}}setTimeout(()=>f.remove(),60000)},300)}
+$('#rset').onclick=()=>{$('#so').value=OR;$('#sn').value=ST.name||'';$('#sp').value=ST.phone||'';$('#sa').value=ST.addr||'';$('#sw').value=ST.msg||'';$('#sd').showModal()};
+$('#sx').onclick=()=>$('#sd').close();
+$('#ssv').onclick=()=>{ST={name:$('#sn').value.trim(),phone:$('#sp').value.trim(),addr:$('#sa').value.trim(),msg:$('#sw').value.trim()};try{localStorage.setItem('pos_st',JSON.stringify(ST))}catch(x){}$('#sd').close();if($('#rd').open&&curS)rcpt(curS);toast('پاشەکەوت کرا')};
+let OR=(()=>{try{return localStorage.getItem('pos_or')||'p'}catch(x){return 'p'}})();
+const MQ=[];for(const sh of document.styleSheets){let rs;try{rs=sh.cssRules}catch(x){continue}for(const r of rs)if(r.type===CSSRule.MEDIA_RULE){const m=r.media.mediaText.match(/^\(max-width:\s*(\d+)px\)$/);if(m)MQ.push([r,+m[1]])}}
+(()=>{const sm=HTMLDialogElement.prototype.showModal;HTMLDialogElement.prototype.showModal=function(){if(document.body.classList.contains('rot'))this.show();else sm.call(this)}})();
+let devL0=null;
+function fitOr(){const W=innerWidth,H=innerHeight,b=document.body,r=document.documentElement;
+ const ae=document.activeElement,typing=ae&&/^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)&&devL0!==null;if(!typing)devL0=W>H;const devL=devL0,wantL=OR==='l',rot=devL!==wantL;
+ let ang=typeof window.orientation==='number'?window.orientation:(screen.orientation?screen.orientation.angle:0);if(ang===270)ang=-90;
+ const vw=rot?H:W,vh=rot?W:H;
+ b.classList.toggle('rot',rot);
+ if(rot){b.style.width=vw+'px';b.style.height=vh+'px';b.style.transform=ang===-90?`translateY(${H}px) rotate(-90deg)`:`translateX(${W}px) rotate(90deg)`}
+ else{b.style.width=b.style.height=b.style.transform=''}
+ r.style.setProperty('--vh',vh/100+'px');r.style.setProperty('--vw',vw/100+'px');
+ MQ.forEach(([x,n])=>{x.media.mediaText=vw<=n?'all':'not all'})}
+addEventListener('resize',fitOr);addEventListener('orientationchange',()=>setTimeout(fitOr,150));
+document.addEventListener('gesturestart',e=>e.preventDefault());
+$('#so').onchange=()=>{OR=$('#so').value;try{localStorage.setItem('pos_or',OR)}catch(x){}fitOr()};
+fitOr();
+const BK=['pos_p','pos_s','pos_m','pos_d','pos_st','pos_or'];
+function bkChk(){let t=0;try{t=+localStorage.getItem('pos_bk')||0}catch(x){}
+ const has=P.length||S.length||D.length,old=Date.now()-t>7*864e5,w=$('#bkw');
+ w.classList.toggle('hide',!(has&&old));w.style.display=(has&&old)?'flex':'';
+ $('#bkm').textContent=t?'ماوەی زیاتر لە ٧ ڕۆژە باکئەپت نەکردووە':'هێشتا هیچ باکئەپێکت نەکردووە';
+ $('#bkt').textContent=t?'دوایین باکئەپ: '+new Date(t).toLocaleString('en-GB'):'هێشتا باکئەپ نەکراوە'}
+async function bkSave(){const d={};try{BK.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)d[k]=v})}catch(x){}
+ const blob=new Blob([JSON.stringify({v:1,m:MK.idx,t:Date.now(),d})],{type:'application/json'}),fn='backup-m'+((MK.idx||0)+1)+'-'+new Date().toISOString().slice(0,10)+'.json';
+ try{let dl=null;if(window.claude&&claude.use)dl=await claude.use('downloads');
+  if(dl)await dl.save({filename:fn,data:blob});
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove()}
+  try{localStorage.setItem('pos_bk',String(Date.now()))}catch(x){}bkChk();toast('کۆپی هەڵگیرا')}
+ catch(x){if(!x||x.code!=='declined')toast('نەتوانرا فایلەکە هەڵبگیرێت')}}
+let bkArm=0;
+function bkRestore(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j||!j.d)throw 0;if(j.m!==undefined&&j.m!==MK.idx){toast('ئەم باکئەپە هی مارکێتێکی ترە');return}
+  BK.forEach(k=>{if(typeof j.d[k]==='string')localStorage.setItem(k,j.d[k])});toast('گەڕایەوە');setTimeout(()=>location.reload(),600)}catch(x){toast('ئەم فایلە باکئەپی دروست نییە')}};r.readAsText(f)}
+$('#bkb').onclick=bkSave;$('#bkn').onclick=bkSave;
+$('#bkr').onclick=()=>{const b=$('#bkr');if(Date.now()-bkArm<4000){bkArm=0;b.textContent='گەڕاندنەوە';$('#bkf').click()}else{bkArm=Date.now();b.textContent='داتای ئێستا دەسڕدرێتەوە، دووبارە دابگرە';setTimeout(()=>{if(bkArm){bkArm=0;b.textContent='گەڕاندنەوە'}},4000)}};
+$('#bkf').onchange=ev=>{const f=ev.target.files[0];if(f)bkRestore(f);ev.target.value=''};
+$('#mkl').textContent=MK.ok?'مارکێتی ژمارە '+(MK.idx+1):'';
+let loArm=0;$('#mko').onclick=async()=>{const b=$('#mko');
+ if(Date.now()-loArm>4000){loArm=Date.now();b.textContent='دڵنیایت؟ دووبارە دابگرە';setTimeout(()=>{if(loArm){loArm=0;b.textContent='دەرچوون (+ باکئەپ)'}},4000);return}
+ loArm=0;b.disabled=true;await bkSave();MK.logout()};
+bkChk();
+function rcpt(s){curS=s;$('#rc').innerHTML=`<div class="rcp"><div class="rh"><b class="rn">${e(ST.name||'فرۆشگاکەم')}</b>${ST.addr?`<div>${e(ST.addr)}</div>`:''}${ST.phone?`<div dir="ltr">${e(ST.phone)}</div>`:''}</div>${ST.msg?`<div class="rw">${e(ST.msg)}</div>`:''}<hr><div class="rm"><span>پسوڵە #${s.no}</span><span dir="ltr">${new Date(s.time).toLocaleString('en-GB')}</span></div><hr>
+ ${s.items.map(i=>`<div class="l"><span>${e(i.n)} × ${i.q}</span><span>${fmt(i.pr*i.q)}</span></div>`).join('')}<hr>
+ <div class="l"><span>کۆ</span><span>${fmt(s.sub)}</span></div>
+ ${s.disc?`<div class="l"><span>داشکاندن</span><span>-${fmt(s.disc)}</span></div>`:''}
+ ${s.tax?`<div class="l"><span>باج</span><span>${fmt(s.tax)}</span></div>`:''}
+ <div class="l"><b>کۆی گشتی</b><b>${fmt(s.total)}</b></div>
+ <div class="l"><span>${mlab(s.meth)}${s.cust?' — '+e(s.cust):''}</span><span>${fmt(s.paid)}</span></div>${s.owe?`<div class="l"><b>قەرز</b><b>${fmt(s.owe)}</b></div>`:''}
+ ${s.meth==='cash'?`<div class="l"><span>باقی</span><span>${fmt(s.paid-s.total)}</span></div>`:''}<hr><div class="ft">سوپاس بۆ سەردانتان</div></div>`;
+ if(!$('#rd').open)$('#rd').showModal()}
+
+/* ---- بەرهەمەکان ---- */
+function rProd(){$('#ptb').innerHTML=P.map(p=>`<tr><td><b>${e(p.name)}</b></td><td dir="ltr" style="text-align:end">${e(p.code)}</td><td>${e(p.cat)}</td>
+ <td><input type="number" min="0" value="${p.price}" data-f="price" data-id="${p.id}"></td>
+ <td><input type="number" min="0" value="${p.stock}" data-f="stock" data-id="${p.id}" class="${p.stock<=5?'low':''}"></td>
+ <td><button class="x" data-del="${p.id}">سڕینەوە</button></td></tr>`).join('')}
+$('#ptb').onchange=ev=>{const i=ev.target.dataset;if(!i.f)return;const p=P.find(x=>x.id==i.id);p[i.f]=Math.max(0,+ev.target.value||0);sv();toast('پاشەکەوت کرا')};
+$('#ptb').onclick=ev=>{const d=ev.target.dataset.del;if(d&&sure(ev.target)){P=P.filter(p=>p.id!=d);sv();rProd()}};
+function chkCode(){const c=$('#pc').value.trim(),p=P.find(x=>String(x.code)===c);if(c&&p){toast('ئەم بارکۆدە هەیە: '+p.name);return true}$('#pn').focus();return false}
+$('#pc').onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();chkCode()}};
+$('#pgen').onclick=()=>{let c;do{c='2'+String(Date.now()).slice(-9)+Math.floor(Math.random()*100)}while(P.some(p=>String(p.code)===c));$('#pc').value=c};
+$('#padd').onclick=()=>{const n=$('#pn').value.trim(),pr=$('#pp').value;let c=$('#pc').value.trim();
+ if(!n||pr==='')return toast('ناو و نرخ پێویستن');
+ if(c&&P.some(p=>String(p.code)===c))return toast('ئەم بارکۆدە پێشتر تۆمار کراوە');
+ if(!c){$('#pgen').click();c=$('#pc').value}
+ P.push({id:Date.now(),name:n,code:c,cat:$('#pg').value.trim()||'گشتی',price:+pr,stock:+$('#ps').value||0});
+ ['pn','pc','pg','pp','ps'].forEach(i=>$('#'+i).value='');sv();rProd();toast('بەرهەم زیاد کرا')};
+
+/* ---- مێژوو ---- */
+function rHistOld(){const d=new Date().toDateString(),td=S.filter(s=>new Date(s.time).toDateString()===d);
+ const sum=a=>a.reduce((x,s)=>x+s.total,0);
+ $('#stats').innerHTML=`<div>فرۆشی ئەمڕۆ<b>${fmt(sum(td))}</b></div><div>پسوڵەی ئەمڕۆ<b>${td.length}</b></div><div>نەقد<b>${fmt(sum(td.filter(s=>s.meth==='cash')))}</b></div><div>کارت<b>${fmt(sum(td.filter(s=>s.meth==='card')))}</b></div>`;
+ $('#htb').innerHTML=S.map(s=>`<tr><td>#${s.no}</td><td>${new Date(s.time).toLocaleString('en-GB')}</td><td>${s.meth==='cash'?'نەقد':'کارت'}</td><td><b>${fmt(s.total)}</b></td><td><button data-no="${s.no}">پسوڵە</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">هێشتا هیچ فرۆشتنێک نییە</td></tr>'}
+$('#htb').onclick=ev=>{const n=ev.target.dataset.no;if(n)rcpt(S.find(s=>s.no==n))};
+
+/* ---- یاریدەدەر ---- */
+const mlab=m=>m==='cash'?'نەقد':m==='card'?'کارت':'قەرز';
+function sure(b){if(b.dataset.s)return true;b.dataset.s=1;const o=b.textContent;b.textContent='دڵنیایت؟';setTimeout(()=>{b.dataset.s='';b.textContent=o},3000);return false}
+
+/* ---- مەندوب ---- */
+function rSupp(){$('#mlist').innerHTML=M.map(m=>`<div class="card"><div><b>${e(m.name)}</b><br><span class="tag">${e(m.type||'بێ جۆر')}</span></div><div class="acts">${m.phone?`<a class="btn" href="tel:${e(m.phone)}" dir="ltr">${e(m.phone)}</a>`:''}<button class="x" data-del="${m.id}">سڕینەوە</button></div></div>`).join('')||'<div class="empty">هێشتا هیچ مەندوبێک نییە</div>'}
+$('#madd').onclick=()=>{const n=$('#mn').value.trim();if(!n)return toast('ناوی مەندوب پێویستە');M.unshift({id:Date.now(),name:n,phone:$('#mp').value.trim(),type:$('#mt').value.trim()});['mn','mp','mt'].forEach(i=>$('#'+i).value='');sv();rSupp();toast('مەندوب زیاد کرا')};
+$('#mlist').onclick=ev=>{const d=ev.target.dataset.del;if(d&&sure(ev.target)){M=M.filter(m=>m.id!=d);sv();rSupp()}};
+
+/* ---- قەرز ---- */
+const bal=d=>d.log.reduce((a,l)=>a+l.a,0);
+function addDebt(name,phone,amt,note){let d=D.find(x=>x.name===name);if(!d){d={id:Date.now(),name,phone:phone||'',log:[]};D.push(d)}if(phone&&!d.phone)d.phone=phone;d.log.unshift({t:Date.now(),a:amt,n:note||''});sv()}
+function rDebt(){const L=[...D].sort((x,y)=>bal(y)-bal(x));
+ $('#dtot').textContent=fmt(D.reduce((a,d)=>a+Math.max(bal(d),0),0));$('#dcnt').textContent=D.filter(d=>bal(d)>0).length;
+ $('#dlist').innerHTML=L.map(d=>{const b=bal(d);return`<button class="card" data-id="${d.id}"><span><b>${e(d.name)}</b><br><small class="mut" dir="ltr">${e(d.phone||'')}</small></span><b class="${b>0?'low':''}" style="${b>0?'':'color:var(--ok)'}">${b>0?fmt(b):'پارەدراوە'}</b></button>`}).join('')||'<div class="empty">هیچ قەرزارێک نییە</div>'}
+$('#dlist').onclick=ev=>{const b=ev.target.closest('[data-id]');if(b)openDebt(b.dataset.id)};
+$('#dadd').onclick=()=>{const n=$('#dn2').value.trim(),a=+$('#da2').value;if(!n||!(a>0))return toast('ناو و بڕی قەرز پێویستن');addDebt(n,$('#dp2').value.trim(),a,$('#dno2').value.trim());['dn2','dp2','da2','dno2'].forEach(i=>$('#'+i).value='');rDebt();toast('قەرز تۆمار کرا')};
+function openDebt(id){const dg=$('#dd'),d=D.find(x=>x.id==id);if(!d)return;const b=bal(d);
+ dg.innerHTML=`<h3 style="margin:0">${e(d.name)}</h3>${d.phone?`<a href="tel:${e(d.phone)}" dir="ltr">${e(d.phone)}</a>`:''}
+ <div class="big ${b>0?'low':''}">${fmt(b)}</div>
+ <input id="dam" type="number" min="0" placeholder="بڕ">
+ <div class="row"><button class="pri" id="dpay">وەرگرتنی پارە</button><button id="dmore">قەرزی زیاد</button></div>
+ <div style="max-height:26vh;overflow:auto;margin-top:10px">${d.log.map(l=>`<div class="tl"><span>${new Date(l.t).toLocaleDateString('en-GB')} ${e(l.n)}</span><b class="${l.a>0?'low':''}">${l.a>0?'+':'-'}${fmt(Math.abs(l.a))}</b></div>`).join('')}</div>
+ <div class="row"><button class="x" id="ddel">سڕینەوەی قەرزار</button><button id="dcl">داخستن</button></div>`;
+ if(!dg.open)dg.showModal();
+ const go=s=>{let a=+$('#dam').value;if(s<0)a=Math.min(a,Math.max(bal(d),0));if(!(a>0))return toast('بڕێکی دروست بنووسە');d.log.unshift({t:Date.now(),a:s*a,n:s<0?'پارەدان':'قەرزی زیاد'});sv();rDebt();openDebt(id)};
+ $('#dpay').onclick=()=>go(-1);$('#dmore').onclick=()=>go(1);
+ $('#ddel').onclick=ev=>{if(sure(ev.target)){D=D.filter(x=>x.id!=id);sv();dg.close();rDebt()}};$('#dcl').onclick=()=>dg.close()}
+
+/* ---- ڕاپۆرت ---- */
+let per='day';
+const WD=['یەک','دوو','سێ','چوار','پێنج','هەینی','شەم'],PN={day:'ڕۆژانە',week:'هەفتانە',month:'مانگانە',year:'ساڵانە'};
+function range(){const n=new Date(),y=n.getFullYear(),m=n.getMonth(),d=n.getDate();
+ if(per==='day')return[new Date(y,m,d),new Date(y,m,d+1)];
+ if(per==='week')return[new Date(y,m,d-6),new Date(y,m,d+1)];
+ if(per==='month')return[new Date(y,m,1),new Date(y,m+1,1)];
+ return[new Date(y,0,1),new Date(y+1,0,1)]}
+function rHist(){
+ $('#per').innerHTML=Object.keys(PN).map(k=>`<button class="${k===per?'on':''}" data-p="${k}">${PN[k]}</button>`).join('');
+ const[a,b]=range(),L=S.filter(s=>s.time>=a&&s.time<b),sum=f=>L.filter(f).reduce((x,s)=>x+s.total,0),tot=sum(()=>1);
+ $('#stats').innerHTML=`<div>کۆی فرۆشتن<b>${fmt(tot)}</b></div><div>ژمارەی پسوڵە<b>${L.length}</b></div><div>نەقد<b>${fmt(sum(s=>s.meth==='cash'))}</b></div><div>کارت<b>${fmt(sum(s=>s.meth==='card'))}</b></div><div>قەرز<b>${fmt(L.reduce((x,s)=>x+(s.owe||0),0))}</b></div><div>تێکڕای پسوڵە<b>${fmt(L.length?tot/L.length:0)}</b></div>`;
+ let n,lab,idx;
+ if(per==='day'){n=24;lab=i=>i;idx=s=>new Date(s.time).getHours()}
+ else if(per==='week'){n=7;lab=i=>WD[new Date(a.getFullYear(),a.getMonth(),a.getDate()+i).getDay()];idx=s=>Math.round((new Date(s.time).setHours(0,0,0,0)-a.getTime())/864e5)}
+ else if(per==='month'){n=new Date(a.getFullYear(),a.getMonth()+1,0).getDate();lab=i=>i+1;idx=s=>new Date(s.time).getDate()-1}
+ else{n=12;lab=i=>i+1;idx=s=>new Date(s.time).getMonth()}
+ const v=Array(n).fill(0);L.forEach(s=>{const i=idx(s);if(i>=0&&i<n)v[i]+=s.total});
+ const mx=Math.max(...v,1),top={};L.forEach(s=>s.items.forEach(i=>{top[i.n]=(top[i.n]||0)+i.q}));
+ const tp=Object.entries(top).sort((x,y)=>y[1]-x[1]).slice(0,5);
+ $('#chart').innerHTML=`<div class="bars">${v.map((x,i)=>`<div class="bc" title="${fmt(x)}"><i style="height:${x?Math.max(3,Math.round(x/mx*120)):1}px"></i><span>${lab(i)}</span></div>`).join('')}</div><h3 style="margin:14px 0 6px;font-size:15px">زۆرترین فرۆشراو</h3>${tp.map(([nm,q])=>`<div class="tl"><span>${e(nm)}</span><b>${q}</b></div>`).join('')||'<div class="mut">هیچ داتایەک نییە</div>'}`;
+ $('#htb').innerHTML=L.slice(0,150).map(s=>`<tr><td>#${s.no}</td><td>${new Date(s.time).toLocaleString('en-GB')}</td><td>${mlab(s.meth)}</td><td><b>${fmt(s.total)}</b></td><td><button data-no="${s.no}">پسوڵە</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">هیچ فرۆشتنێک نییە</td></tr>'}
+$('#per').onclick=ev=>{const p=ev.target.dataset.p;if(p){per=p;rHist()}};
+rSale();
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>
