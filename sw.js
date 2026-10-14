@@ -1,4 +1,4 @@
-const V='cashier-v2';
+const V='cashier-v3';
 const ZX='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 const FILES=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);await c.addAll(FILES);try{await c.add(ZX)}catch(x){}self.skipWaiting()})())});

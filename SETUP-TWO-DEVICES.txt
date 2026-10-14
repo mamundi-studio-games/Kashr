@@ -1,0 +1,26 @@
+Cashier KRD — Two-device license limit
+======================================
+
+Important: the two-device restriction is cloud-enforced. It will NOT work until Supabase is configured and the function is deployed. Do not publish the app as protected before setup.
+
+1. Create a Supabase project.
+2. In Supabase SQL Editor, run:
+   supabase/migrations/001_two_device_limit.sql
+3. Install Supabase CLI and log in, then link your project:
+   supabase link --project-ref YOUR_PROJECT_REF
+4. Set the Edge Function secrets (service role key must NEVER go into config.js):
+   supabase secrets set SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+   supabase secrets set SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+5. Deploy:
+   supabase functions deploy activate-device
+6. Edit config.js:
+   endpoint = https://YOUR_PROJECT_REF.supabase.co/functions/v1/activate-device
+   publicKey = your project's anon/public key
+7. Upload ALL files and folders in this package to the root of your hosting, including config.js and the supabase folder (the supabase folder is for setup; it does not need to be public).
+8. Test with a test code: first two distinct devices should activate; third should be rejected.
+
+Notes:
+- This includes the current app's 100 built-in market codes (IDs 0–99).
+- Clearing browser data or reinstalling can create a new device ID; no browser-only method can make device identity impossible to spoof. For stricter device binding, add account verification or manual admin reset.
+- To free a slot when a customer replaces a phone, remove that device's row from public.license_devices in Supabase Table Editor. Keep one or two approved device rows.
+- Back up your current production files before replacing them.

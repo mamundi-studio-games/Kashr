@@ -230,7 +230,7 @@ function sha(m){const e=new TextEncoder().encode(m),l=e.length,n=((l+9+63)>>6)<<
   h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+cc)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0}
  return h.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('')}
 const gi=Storage.prototype.getItem,si=Storage.prototype.setItem,ri=Storage.prototype.removeItem;
-let sess=null;try{const v=gi.call(localStorage,'pos_sess');if(v!==null&&/^\d+$/.test(v)&&+v<H.length)sess=+v}catch(e){}
+let sess=null;try{const v=gi.call(localStorage,'pos_sess');if(v!==null&&/^\d+$/.test(v)&&+v<H.length&&gi.call(localStorage,'pos_cloud_ok')==='1')sess=+v}catch(e){}
 const NS=sess!==null?'m'+sess+'_':'guest_';
 const mp=k=>(typeof k==='string'&&k.startsWith('pos_')&&k!=='pos_sess'&&k!=='pos_mig')?NS+k:k;
 Storage.prototype.getItem=function(k){return gi.call(this,mp(k))};
@@ -238,13 +238,21 @@ Storage.prototype.setItem=function(k,v){return si.call(this,mp(k),v)};
 Storage.prototype.removeItem=function(k){return ri.call(this,mp(k))};
 const KEYS=['pos_p','pos_s','pos_m','pos_d','pos_st','pos_or','pos_bk'];
 const MK=window.MK={idx:sess,ok:sess!==null,
- login(code){const c=String(code).toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==12)return false;
-  const i=H.indexOf(sha(SALT+c));if(i<0)return false;
+ async login(code){const c=String(code).toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length!==12)return {ok:false,msg:'کۆدەکە هەڵەیە'};
+  const i=H.indexOf(sha(SALT+c));if(i<0)return {ok:false,msg:'کۆدەکە هەڵەیە'};
+  const cfg=window.CASHIER_LICENSE_CONFIG||{};
+  if(!cfg.endpoint||!cfg.publicKey)return {ok:false,msg:'سیستەمی پاراستنی دوو مۆبایل چالاک نەکراوە. پێویستە ڕێکخستنی سێرڤەر تەواو بکرێت.'};
+  let deviceId='';try{deviceId=gi.call(localStorage,'cashier_device_id')||'';if(!deviceId){deviceId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2));si.call(localStorage,'cashier_device_id',deviceId)}}catch(e){return {ok:false,msg:'نەتوانرا ناسنامەی ئامێر دروست بکرێت'};}
+  try {
+   const response=await fetch(cfg.endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publicKey,'Authorization':'Bearer '+cfg.publicKey},body:JSON.stringify({code:c,deviceId})});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok||!result.ok)return {ok:false,msg:result.message||'ئەم کۆدە لە دوو مۆبایلدا چالاکە؛ مۆبایلی سێیەم ڕێگەپێدراو نییە.'};
+  } catch(e){return {ok:false,msg:'پەیوەندی بە سێرڤەر نەکرا. ئینتەرنێت و ڕێکخستنەکان بپشکنە.'}}
   try{if(gi.call(localStorage,'pos_mig')===null){if(gi.call(localStorage,'m'+i+'_pos_p')===null&&gi.call(localStorage,'pos_p')!==null)
     KEYS.forEach(k=>{const v=gi.call(localStorage,k);if(v!==null)si.call(localStorage,'m'+i+'_'+k,v)});si.call(localStorage,'pos_mig','1')}
-   si.call(localStorage,'pos_sess',String(i))}catch(e){return false}
-  return true},
- logout(){try{ri.call(localStorage,'pos_sess')}catch(e){}location.reload()}};
+   si.call(localStorage,'pos_sess',String(i));si.call(localStorage,'pos_cloud_ok','1')}catch(e){return {ok:false,msg:'هەڵەی پاشەکەوتکردن'}};
+  return {ok:true}},
+ logout(){try{ri.call(localStorage,'pos_sess');ri.call(localStorage,'pos_cloud_ok')}catch(e){}location.reload()}};
 if(!MK.ok){
  const st=document.createElement('style');
  st.textContent='#lg{position:fixed;inset:0;z-index:99999;background:#1e1b4b;display:flex;align-items:center;justify-content:center;padding:20px}#lg .c{background:#fff;color:#1e1b4b;border-radius:22px;padding:24px;width:min(380px,100%);text-align:center}#lg h2{margin:0 0 6px}#lg p{margin:0 0 14px;color:#6b6894;font-size:14px}#lg input{width:100%;padding:14px;border-radius:14px;border:1px solid #cfcbee;font-size:20px;text-align:center;letter-spacing:2px;direction:ltr;text-transform:uppercase;background:#fff;color:#1e1b4b}#lg button{width:100%;margin-top:12px;padding:14px;border:0;border-radius:14px;background:#6a47f5;color:#fff;font-size:16px;font-weight:700}#lg .e{color:#d62f45;min-height:20px;margin-top:8px;font-size:14px}';
@@ -252,7 +260,8 @@ if(!MK.ok){
  const d=document.createElement('div');d.id='lg';
  d.innerHTML='<div class="c"><h2>سیستەمی کاشێر</h2><p>کۆدی مارکێتەکەت بنووسە</p><input id="lgc" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX"><div class="e" id="lge"></div><button id="lgb">چوونەژوورەوە</button></div>';
  document.body.appendChild(d);
- const go=()=>{if(MK.login(document.getElementById('lgc').value))location.reload();else document.getElementById('lge').textContent='کۆدەکە هەڵەیە'};
+ const go=async()=>{const b=document.getElementById('lgb'),err=document.getElementById('lge');b.disabled=true;b.textContent='چاوەڕێ بکە...';err.textContent='';
+ const result=await MK.login(document.getElementById('lgc').value);if(result.ok)location.reload();else err.textContent=result.msg||'کۆدەکە هەڵەیە';b.disabled=false;b.textContent='چوونەژوورەوە'};
  document.getElementById('lgb').onclick=go;
  document.getElementById('lgc').onkeydown=e=>{if(e.key==='Enter')go()};
  setTimeout(()=>document.getElementById('lgc').focus(),50)}
